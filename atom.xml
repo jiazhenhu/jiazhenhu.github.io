@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>节奏随心博客</title>
+  
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2018-04-05T12:49:31.434Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>jiazhenhu</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>objToMap</title>
+    <link href="http://yoursite.com/2018/04/05/objToMap/"/>
+    <id>http://yoursite.com/2018/04/05/objToMap/</id>
+    <published>2018-04-05T12:46:17.000Z</published>
+    <updated>2018-04-05T12:49:31.434Z</updated>
+    
+    <content type="html"><![CDATA[<p>将Java对象转换成Map的键值对形式</p><pre><code>import com.sun.deploy.util.StringUtils;import java.lang.reflect.Field;import java.text.SimpleDateFormat;import java.util.*;/** * Created by lonecloud on 17/3/12. * 用于对Object进行解析并且转换成Map键值对的形式 * * @author lonecloud * @version 1.0 */public class ObjectUtils {    private static final String JAVAP = &quot;java.&quot;;    private static final String JAVADATESTR = &quot;java.util.Date&quot;;    /**     * 获取利用反射获取类里面的值和名称     *     * @param obj     * @return     * @throws IllegalAccessException     */    public static Map&lt;String, Object&gt; objectToMap(Object obj) throws IllegalAccessException {        Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();        Class&lt;?&gt; clazz = obj.getClass();        System.out.println(clazz);        for (Field field : clazz.getDeclaredFields()) {            field.setAccessible(true);            String fieldName = field.getName();            Object value = field.get(obj);            map.put(fieldName, value);        }        return map;    }    /**     * 利用递归调用将Object中的值全部进行获取     *     * @param timeFormatStr 格式化时间字符串默认&lt;strong&gt;2017-03-10 10:21&lt;/strong&gt;     * @param obj           对象     * @param excludeFields 排除的属性     * @return     * @throws IllegalAccessException     */    public static Map&lt;String, String&gt; objectToMapString(String timeFormatStr, Object obj, String... excludeFields) throws IllegalAccessException {        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();        if (excludeFields.length!=0){            List&lt;String&gt; list = Arrays.asList(excludeFields);            objectTransfer(timeFormatStr, obj, map, list);        }else{            objectTransfer(timeFormatStr, obj, map,null);        }        return map;    }    /**     * 递归调用函数     *     * @param obj           对象     * @param map           map     * @param excludeFields 对应参数     * @return     * @throws IllegalAccessException     */    private static Map&lt;String, String&gt; objectTransfer(String timeFormatStr, Object obj, Map&lt;String, String&gt; map, List&lt;String&gt; excludeFields) throws IllegalAccessException {        boolean isExclude=false;        //默认字符串        String formatStr = &quot;YYYY-MM-dd HH:mm:ss&quot;;        //设置格式化字符串        if (timeFormatStr != null &amp;&amp; !timeFormatStr.isEmpty()) {            formatStr = timeFormatStr;        }        if (excludeFields!=null){            isExclude=true;        }        Class&lt;?&gt; clazz = obj.getClass();        //获取值        for (Field field : clazz.getDeclaredFields()) {            String fieldName = clazz.getSimpleName() + &quot;.&quot; + field.getName();            //判断是不是需要跳过某个属性            if (isExclude&amp;&amp;excludeFields.contains(fieldName)){                continue;            }            //设置属性可以被访问            field.setAccessible(true);            Object value = field.get(obj);            Class&lt;?&gt; valueClass = value.getClass();            if (valueClass.isPrimitive()) {                map.put(fieldName, value.toString());            } else if (valueClass.getName().contains(JAVAP)) {//判断是不是基本类型                if (valueClass.getName().equals(JAVADATESTR)) {                    //格式化Date类型                    SimpleDateFormat sdf = new SimpleDateFormat(formatStr);                    Date date = (Date) value;                    String dataStr = sdf.format(date);                    map.put(fieldName, dataStr);                } else {                    map.put(fieldName, value.toString());                }            } else {                objectTransfer(timeFormatStr, value, map,excludeFields);            }        }        return map;    }}</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;将Java对象转换成Map的键值对形式&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;import com.sun.deploy.util.StringUtils;
+
+import java.lang.reflect.Field;
+import java.text.SimpleDateFo
+      
+    
+    </summary>
+    
+    
+      <category term="JAVA" scheme="http://yoursite.com/tags/JAVA/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Spring整合junit单元测试</title>
+    <link href="http://yoursite.com/2018/03/22/spring-junit/"/>
+    <id>http://yoursite.com/2018/03/22/spring-junit/</id>
+    <published>2018-03-22T00:59:31.000Z</published>
+    <updated>2018-04-03T08:12:41.969Z</updated>
+    
+    <content type="html"><![CDATA[<p></p><h3>一.加入依赖包</h3><br>使用spring的测试框架需要加入以下依赖包：<br>JUnit 4 （官方下载：<a href="http://www.junit.org/）" target="_blank" rel="noopener">http://www.junit.org/）</a><br>Spring Test （Spring框架中的test包）<br>Spring 相关其他依赖包（不再赘述了，就是context等包）<br>如果使用maven，在基于spring的项目中添加如下依赖：<p></p><pre><code>&lt;dependency&gt;              &lt;groupId&gt;junit&lt;/groupId&gt;              &lt;artifactId&gt;junit&lt;/artifactId&gt;              &lt;version&gt;4.9&lt;/version&gt;              &lt;scope&gt;test&lt;/scope&gt;  &lt;/dependency&gt;   &lt;dependency&gt;              &lt;groupId&gt;org.springframework&lt;/groupId&gt;              &lt;artifactId&gt;spring-test&lt;/artifactId&gt;              &lt;version&gt; 3.2.4.RELEASE  &lt;/version&gt;              &lt;scope&gt;provided&lt;/scope&gt;  &lt;/dependency&gt;</code></pre><p></p><h3>二.创建测试类</h3><br>1)基类,其实就是用来加载配置文件的<p></p><pre><code>import java.util.List;import org.junit.Test;import org.junit.runner.RunWith;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.test.context.ContextConfiguration;import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;import org.springframework.test.context.web.WebAppConfiguration;import com.slintec.modules.userdb.xtcs.dao.FrmSysparaDao;import com.slintec.modules.userdb.xtcs.pojo.FrmSysparaSchema;@RunWith(SpringJUnit4ClassRunner.class)@WebAppConfiguration @ContextConfiguration(locations={&quot;classpath:spring-core.xml&quot;})public class TestDao {    @Autowired    FrmSysparaDao frmSysparaDao;    @Test    public void testSysPara(){        List&lt;FrmSysparaSchema&gt; list= frmSysparaDao.getAllSysParas();        for (FrmSysparaSchema frmSysparaSchema : list) {            System.out.println(frmSysparaSchema.getJyw());        }    }}</code></pre><p>解释下用到的注解:<br>@RunWith：用于指定junit运行环境，是junit提供给其他框架测试环境接口扩展，为了便于使用spring的依赖注入，spring提供了org.springframework.test.context.junit4.SpringJUnit4ClassRunner作为Junit测试环境<br>@ContextConfiguration({“classpath:applicationContext.xml”,”classpath:spring/buyer/applicationContext-service.xml”})<br>导入配置文件，这里我的applicationContext配置文件是根据模块来分类的。如果有多个模块就引入多个“applicationContext-service.xml”文件。如果所有的都是写在“applicationContext。xml”中则这样导入：<br>@ContextConfiguration(locations = “classpath:applicationContext.xml”)<br>@WebAppConfiguration 添加这个注解可以模拟支持被测试的BEAN注入request response session；</p><p>Spring 模拟请求测试</p><pre><code>import org.junit.Before;import org.junit.Test;import org.junit.runner.RunWith;import org.springframework.beans.factory.annotation.Autowired;import org.springframework.mock.web.MockHttpServletRequest;import org.springframework.test.context.ContextConfiguration;import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;import org.springframework.test.context.web.WebAppConfiguration;import org.springframework.test.web.servlet.MockMvc;import org.springframework.test.web.servlet.MvcResult;import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;import org.springframework.test.web.servlet.setup.MockMvcBuilders;import org.springframework.web.context.WebApplicationContext;@RunWith(SpringJUnit4ClassRunner.class)@WebAppConfiguration@ContextConfiguration(locations={&quot;classpath:spring-core.xml&quot;,&quot;classpath:spring-mvc.xml&quot;})public class MVCTest { //传入springmvc的ico @Autowired WebApplicationContext webApplicationContext; //虚拟mvc请求，获取请求结果 MockMvc mockMvc; //每次调用初始化 @Before public void init(){       mockMvc =MockMvcBuilders.webAppContextSetup(webApplicationContext).build(); } @Test public void TestMvc() throws Exception{       //模拟请求，拿到返回值       /*MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(&quot;authCodeVif.do&quot;).param(&quot;ss&quot;, &quot;ss&quot;))                                 .andReturn();  带参数*/       MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(&quot;authCodeVif.do&quot;))                 .andReturn();       MockHttpServletRequest request = result.getRequest();       System.out.println(request.getAttribute(&quot;hdNum&quot;)); }</code></pre><p>}</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;&lt;/p&gt;&lt;h3&gt;一.加入依赖包&lt;/h3&gt;&lt;br&gt;使用spring的测试框架需要加入以下依赖包：&lt;br&gt;JUnit 4 （官方下载：&lt;a href=&quot;http://www.junit.org/）&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;http://w
+      
+    
+    </summary>
+    
+    
+      <category term="JUNIT" scheme="http://yoursite.com/tags/JUNIT/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>SSM动态修改定时器</title>
+    <link href="http://yoursite.com/2018/03/20/biji/"/>
+    <id>http://yoursite.com/2018/03/20/biji/</id>
+    <published>2018-03-20T00:36:33.000Z</published>
+    <updated>2018-04-03T08:12:41.969Z</updated>
+    
+    <content type="html"><![CDATA[<pre><code>@Component@EnableSchedulingpublic class updateCronTask implements SchedulingConfigurer {    public static String cron = &quot;0/2 * * * * ?&quot;;    int i=0;    @Override    public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {        taskRegistrar.addTriggerTask(new Runnable() {        @Override        public void run(){        i++;            // 任务逻辑        System.out.println(&quot;第&quot;+(i)+&quot;次开始执行操作... &quot; +&quot;时间：【&quot; + new SimpleDateFormat(&quot;yyyyMMdd hh:mm:ss.SSS&quot;).format(new Date()) + &quot;】&quot;);        }    }, new Trigger(){        @Override        public Date nextExecutionTime(TriggerContext triggerContext) {            //任务触发，可修改任务的执行周期            CronTrigger trigger = new CronTrigger(cron);            Date nextExec = trigger.nextExecutionTime(triggerContext);            return nextExec;        }    });}}</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;pre&gt;&lt;code&gt;@Component
+@EnableScheduling
+public class updateCronTask implements SchedulingConfigurer {
+    public static String cron = &amp;quot;
+      
+    
+    </summary>
+    
+    
+      <category term="SSM" scheme="http://yoursite.com/tags/SSM/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>springMVC返回json数据乱码问题及@RequestMapping 详解</title>
+    <link href="http://yoursite.com/2018/03/19/Tets/"/>
+    <id>http://yoursite.com/2018/03/19/Tets/</id>
+    <published>2018-03-19T01:05:17.000Z</published>
+    <updated>2018-04-03T08:12:41.968Z</updated>
+    
+    <content type="html"><![CDATA[<p></p><h3>一、@RequestMapping</h3><br>RequestMapping是一个用来处理请求地址映射的注解，可用于类或方法上。用于类上，表示类中的所有响应请求的方法都是以该地址作为父路径。<br>RequestMapping注解有六个属性，下面我们把她分成三类进行说明。<br><p></p><p></p><h4>1、 value， method；</h4><br>value： 指定请求的实际地址，指定的地址可以是URI Template 模式（后面将会说明）；<br><br>method： 指定请求的method类型， GET、POST、PUT、DELETE等；<br><p></p><p></p><h4>2、 consumes，produces；</h4><br>consumes： 指定处理请求的提交内容类型（Content-Type），例如application/json, text/html;<br><br>produces: 指定返回的内容类型，仅当request请求头中的(Accept)类型中包含该指定类型才返回；<br><p></p><p></p><h4>3、 params，headers；</h4><br>params： 指定request中必须包含某些参数值是，才让该方法处理。<br><br>headers： 指定request中必须包含某些指定的header值，才能让该方法处理请求。<br><p></p><p></p><h3>二、json数据乱码</h3><br>在springMVC controller中返回json数据出现乱码问题，因为没有进行编码，只需要简单的注解就可以了<br><br>在@RequestMapping()中加入produces=”text/html;charset=UTF-8”属性即可，如下：<p></p><pre><code>@RequestMapping(value=&quot;/respost&quot;,method=RequestMethod.GET,produces=&quot;text/html;charset=UTF-8&quot;)  @ResponseBody  public String postList(@RequestParam(&quot;topicId&quot;) String topicId){      List&lt;Post&gt; posts=new ArrayList&lt;Post&gt;();      System.out.println(&quot;topicId-----&quot;+topicId);      posts=postService.findPostList(topicId);      JSONArray postJson=JSONArray.fromObject(posts);      return postJson.toString();  }</code></pre>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;&lt;/p&gt;&lt;h3&gt;一、@RequestMapping&lt;/h3&gt;&lt;br&gt;RequestMapping是一个用来处理请求地址映射的注解，可用于类或方法上。用于类上，表示类中的所有响应请求的方法都是以该地址作为父路径。&lt;br&gt;RequestMapping注解有六个属性，下面我们把她
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+</feed>

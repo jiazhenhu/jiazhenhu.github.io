@@ -1,0 +1,518 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>objToMap | 节奏随心博客</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
+    
+    <meta name="author" content="jiazhenhu">
+    
+
+    
+    <meta name="description" content="将Java对象转换成Map的键值对形式 import com.sun.deploy.util.StringUtils;  import java.lang.reflect.Field; import java.text.SimpleDateFormat; import java.util.*;  /**  * Created by lonecloud on 17/3/12.  * 用于对Objec">
+<meta name="keywords" content="JAVA">
+<meta property="og:type" content="article">
+<meta property="og:title" content="objToMap">
+<meta property="og:url" content="http://yoursite.com/2018/04/05/objToMap/index.html">
+<meta property="og:site_name" content="节奏随心博客">
+<meta property="og:description" content="将Java对象转换成Map的键值对形式 import com.sun.deploy.util.StringUtils;  import java.lang.reflect.Field; import java.text.SimpleDateFormat; import java.util.*;  /**  * Created by lonecloud on 17/3/12.  * 用于对Objec">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-04-05T12:49:31.434Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="objToMap">
+<meta name="twitter:description" content="将Java对象转换成Map的键值对形式 import com.sun.deploy.util.StringUtils;  import java.lang.reflect.Field; import java.text.SimpleDateFormat; import java.util.*;  /**  * Created by lonecloud on 17/3/12.  * 用于对Objec">
+
+    
+    <link rel="alternative" href="/atom.xml" title="节奏随心博客" type="application/atom+xml">
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/jacman.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/jacman.jpg">
+    
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+  <body>
+    <header>
+      
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="节奏随心博客" title="节奏随心博客"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="节奏随心博客">节奏随心博客</a></h1>
+				<h2 class="blog-motto"></h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="Menu">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">归档</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li>
+ 					
+						<form class="search" action="http://zhannei.baidu.com/cse/search" target="_blank">
+							<label>Search</label>
+						<input name="s" type="hidden" value=  ><input type="text" name="q" size="30" placeholder="Search"><br>
+						</form>
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+    </header>
+    <div id="container">
+      <div id="main" class="将Object对象转换成Map 属性名和值的形式" itemscope itemprop="blogPost">
+  
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/04/05/objToMap/" title="objToMap" itemprop="url">objToMap</a>
+  </h1>
+  <p class="article-author">By
+       
+		<a href="/about" title="jiazhenhu" target="_blank" itemprop="author">jiazhenhu</a>
+		
+  <p class="article-time">
+    <time datetime="2018-04-05T12:46:17.000Z" itemprop="datePublished"> Published 2018-04-05</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">Contents</strong>
+		
+			
+		
+		</div>
+		
+		<p>将Java对象转换成Map的键值对形式</p>
+<pre><code>import com.sun.deploy.util.StringUtils;
+
+import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+/**
+ * Created by lonecloud on 17/3/12.
+ * 用于对Object进行解析并且转换成Map键值对的形式
+ *
+ * @author lonecloud
+ * @version 1.0
+ */
+public class ObjectUtils {
+
+    private static final String JAVAP = &quot;java.&quot;;
+    private static final String JAVADATESTR = &quot;java.util.Date&quot;;
+
+    /**
+     * 获取利用反射获取类里面的值和名称
+     *
+     * @param obj
+     * @return
+     * @throws IllegalAccessException
+     */
+    public static Map&lt;String, Object&gt; objectToMap(Object obj) throws IllegalAccessException {
+        Map&lt;String, Object&gt; map = new HashMap&lt;&gt;();
+        Class&lt;?&gt; clazz = obj.getClass();
+        System.out.println(clazz);
+        for (Field field : clazz.getDeclaredFields()) {
+            field.setAccessible(true);
+            String fieldName = field.getName();
+            Object value = field.get(obj);
+            map.put(fieldName, value);
+        }
+        return map;
+    }
+
+    /**
+     * 利用递归调用将Object中的值全部进行获取
+     *
+     * @param timeFormatStr 格式化时间字符串默认&lt;strong&gt;2017-03-10 10:21&lt;/strong&gt;
+     * @param obj           对象
+     * @param excludeFields 排除的属性
+     * @return
+     * @throws IllegalAccessException
+     */
+    public static Map&lt;String, String&gt; objectToMapString(String timeFormatStr, Object obj, String... excludeFields) throws IllegalAccessException {
+        Map&lt;String, String&gt; map = new HashMap&lt;&gt;();
+
+        if (excludeFields.length!=0){
+            List&lt;String&gt; list = Arrays.asList(excludeFields);
+            objectTransfer(timeFormatStr, obj, map, list);
+        }else{
+            objectTransfer(timeFormatStr, obj, map,null);
+        }
+        return map;
+    }
+
+
+    /**
+     * 递归调用函数
+     *
+     * @param obj           对象
+     * @param map           map
+     * @param excludeFields 对应参数
+     * @return
+     * @throws IllegalAccessException
+     */
+    private static Map&lt;String, String&gt; objectTransfer(String timeFormatStr, Object obj, Map&lt;String, String&gt; map, List&lt;String&gt; excludeFields) throws IllegalAccessException {
+        boolean isExclude=false;
+        //默认字符串
+        String formatStr = &quot;YYYY-MM-dd HH:mm:ss&quot;;
+        //设置格式化字符串
+        if (timeFormatStr != null &amp;&amp; !timeFormatStr.isEmpty()) {
+            formatStr = timeFormatStr;
+        }
+        if (excludeFields!=null){
+            isExclude=true;
+        }
+        Class&lt;?&gt; clazz = obj.getClass();
+        //获取值
+        for (Field field : clazz.getDeclaredFields()) {
+            String fieldName = clazz.getSimpleName() + &quot;.&quot; + field.getName();
+            //判断是不是需要跳过某个属性
+            if (isExclude&amp;&amp;excludeFields.contains(fieldName)){
+                continue;
+            }
+            //设置属性可以被访问
+            field.setAccessible(true);
+            Object value = field.get(obj);
+            Class&lt;?&gt; valueClass = value.getClass();
+            if (valueClass.isPrimitive()) {
+                map.put(fieldName, value.toString());
+
+            } else if (valueClass.getName().contains(JAVAP)) {//判断是不是基本类型
+                if (valueClass.getName().equals(JAVADATESTR)) {
+                    //格式化Date类型
+                    SimpleDateFormat sdf = new SimpleDateFormat(formatStr);
+                    Date date = (Date) value;
+                    String dataStr = sdf.format(date);
+                    map.put(fieldName, dataStr);
+                } else {
+                    map.put(fieldName, value.toString());
+                }
+            } else {
+                objectTransfer(timeFormatStr, value, map,excludeFields);
+            }
+        }
+        return map;
+    }
+
+}
+</code></pre>  
+	</div>
+		<footer class="article-footer clearfix">
+<div class="article-catetags">
+
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/JAVA/">JAVA</a>
+  </div>
+
+</div>
+
+
+
+	<div class="article-share" id="share">
+	
+	  <div data-url="http://yoursite.com/2018/04/05/objToMap/" data-title="objToMap | 节奏随心博客" data-tsina="" class="share clearfix">
+	  </div>
+	
+	</div>
+
+
+</footer>
+
+   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2018/03/22/spring-junit/"  title="Spring整合junit单元测试">
+ <strong>下一篇：</strong><br/> 
+ <span>Spring整合junit单元测试
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="Show Sidebar"></a></div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="Hide Sidebar"></a></div>
+<aside class="clearfix">
+
+  
+
+
+  
+
+  
+<div class="tagslist">
+	<p class="asidetitle">Tags</p>
+		<ul class="clearfix">
+		
+			
+				<li><a href="/tags/JAVA/" title="JAVA">JAVA<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/SSM/" title="SSM">SSM<sup>1</sup></a></li>
+			
+		
+			
+				<li><a href="/tags/JUNIT/" title="JUNIT">JUNIT<sup>1</sup></a></li>
+			
+		
+		</ul>
+</div>
+
+
+  <div class="linkslist">
+  <p class="asidetitle">Links</p>
+    <ul>
+        
+          <li>
+            
+            	<a href="http://jiazhenhu.top" target="_blank" title="jiazhenhu Blog">jiazhenhu Blog</a>
+            
+          </li>
+        
+          <li>
+            
+            	<a href="https://liyachuan.github.io/" target="_blank" title="Yc&#39;s Blog">Yc&#39;s Blog</a>
+            
+          </li>
+        
+    </ul>
+</div>
+
+  
+
+
+  <div class="rsspart">
+	<a href="/atom.xml" target="_blank" title="rss">RSS</a>
+</div>
+
+  <div class="weiboshow">
+  <p class="asidetitle">Weibo</p>
+    <iframe width="100%" height="119" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=119&fansRow=2&ptype=1&speed=0&skin=9&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=&verifier=&dpc=1"></iframe>
+</div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello ,I&#39;m Larry Page in Google. <br/>
+			This is my blog,believe it or not.</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</div>
+			
+		
+
+		<p class="copyright">
+		Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/wuchong/jacman" target="_blank" title="Jacman">Jacman</a> © 2018 
+		
+		<a href="/about" target="_blank" title="jiazhenhu">jiazhenhu</a>
+		
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.0.3.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/jquery.qrcode-0.12.0.min.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.navbar').click(function(){
+    $('header nav').toggleClass('shownav');
+  });
+  var myWidth = 0;
+  function getSize(){
+    if( typeof( window.innerWidth ) == 'number' ) {
+      myWidth = window.innerWidth;
+    } else if( document.documentElement && document.documentElement.clientWidth) {
+      myWidth = document.documentElement.clientWidth;
+    };
+  };
+  var m = $('#main'),
+      a = $('#asidepart'),
+      c = $('.closeaside'),
+      o = $('.openaside');
+  c.click(function(){
+    a.addClass('fadeOut').css('display', 'none');
+    o.css('display', 'block').addClass('fadeIn');
+    m.addClass('moveMain');
+  });
+  o.click(function(){
+    o.css('display', 'none').removeClass('beforeFadeIn');
+    a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');      
+    m.removeClass('moveMain');
+  });
+  $(window).scroll(function(){
+    o.css("top",Math.max(80,260-$(this).scrollTop()));
+  });
+  
+  $(window).resize(function(){
+    getSize(); 
+    if (myWidth >= 1024) {
+      $('header nav').removeClass('shownav');
+    }else{
+      m.removeClass('moveMain');
+      a.css('display', 'block').removeClass('fadeOut');
+      o.css('display', 'none');
+      
+      $('#toc.toc-aside').css('display', 'none');
+        
+    }
+  });
+});
+</script>
+
+<script type="text/javascript">
+$(document).ready(function(){ 
+  var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+  if(ai.length>0){
+    ai.wrap('<div class="video-container" />');
+  };
+  if(ae.length>0){
+   ae.wrap('<div class="video-container" />');
+  };
+  c.click(function(){
+    ta.css('display', 'block').addClass('fadeIn');
+  });
+  o.click(function(){
+    ta.css('display', 'none');
+  });
+  $(window).scroll(function(){
+    ta.css("top",Math.max(140,320-$(this).scrollTop()));
+  });
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+$(document).ready(function(){ 
+  $('.article-content').each(function(i){
+    $(this).find('img').each(function(){
+      if ($(this).parent().hasClass('fancybox')) return;
+      var alt = this.alt;
+      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
+      $(this).wrap('<a href="' + this.src + '" title="' + alt + '" class="fancybox"></a>');
+    });
+    $(this).find('.fancybox').each(function(){
+      $(this).attr('rel', 'article' + i);
+    });
+  });
+  if($.fancybox){
+    $('.fancybox').fancybox();
+  }
+}); 
+</script>
+
+
+
+<!-- Analytics Begin -->
+
+
+
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "//hm.baidu.com/hm.js?e6d1f421bbc9962127a50488f9ed37d1";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+
+
+
+<!-- Analytics End -->
+
+<!-- Totop Begin -->
+
+	<div id="totop">
+	<a title="Back to Top"><img src="/img/scrollup.png"/></a>
+	</div>
+	<script src="/js/totop.js"></script>
+
+<!-- Totop End -->
+
+<!-- MathJax Begin -->
+<!-- mathjax config similar to math.stackexchange -->
+
+
+<!-- MathJax End -->
+
+<!-- Tiny_search Begin -->
+
+<!-- Tiny_search End -->
+
+  </body>
+ </html>
